@@ -3,112 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invirtiendo en España | Terminal</title>
+    <title>Invirtiendo en España</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600;700&display=swap');
-        body { font-family: 'Geist', sans-serif; background-color: #0b0f1a; color: #f8fafc; }
+        body { font-family: 'Geist', sans-serif; background-color: #0b0f1a; color: #f8fafc; margin: 0; padding: 0; }
         .glass-card { 
             background: rgba(22, 28, 45, 0.7); 
             backdrop-filter: blur(12px); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
             border-radius: 1.5rem; 
         }
+        #tradingview_ibex { min-height: 300px; width: 100%; }
         input[type="range"] { accent-color: #6366f1; cursor: pointer; }
-        input[type=range]::-webkit-slider-runnable-track { background: #1e293b; border-radius: 10px; height: 6px; }
     </style>
 </head>
 <body class="py-6 px-4 md:px-10 min-h-screen">
 
     <div class="max-w-4xl mx-auto space-y-6">
         <header class="flex justify-between items-center mb-4">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-white italic">
-                    Invirtiendo en <span class="text-indigo-500 font-light">España</span>
-                </h1>
-            </div>
+            <h1 class="text-2xl font-bold tracking-tight text-white italic">
+                Invirtiendo en <span class="text-indigo-500 font-light">España</span>
+            </h1>
             <div class="bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20 flex items-center space-x-2">
                 <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-                <span class="text-[10px] font-bold uppercase">Análisis en Vivo</span>
+                <span class="text-[10px] font-bold uppercase">Datos en Vivo</span>
             </div>
         </header>
 
-        <div class="glass-card overflow-hidden h-[300px] border-indigo-500/20">
-            <div id="tradingview_ibex" class="w-full h-full"></div>
+        <div class="glass-card overflow-hidden border-indigo-500/20 shadow-2xl" style="height: 350px;">
+            <div id="tradingview_ibex"></div>
         </div>
 
         <div class="grid md:grid-cols-5 gap-6">
             <div class="md:col-span-3 space-y-6">
-                <main class="glass-card p-6 space-y-6">
+                <div class="glass-card p-6 space-y-6">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1 italic">Seleccionar Activo</label>
-                        <select id="stock-selector" onchange="updateStockPrice()" 
-                            class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-white transition-all appearance-none">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1 italic">Activo Seleccionado</label>
+                        <select id="stock-selector" onchange="updateStockPrice()" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white outline-none">
                             <option value="117.50">Inditex (ITX)</option>
                             <option value="3.85">Santander (SAN)</option>
                             <option value="9.15">BBVA (BBVA)</option>
                             <option value="12.10">Iberdrola (IBE)</option>
                             <option value="3.90">Telefónica (TEF)</option>
                             <option value="1.45">IAG (IAG)</option>
-                            <option value="18.20">Repsol (REP)</option>
-                            <option value="4.10">CaixaBank (CABK)</option>
-                            <option value="14.10">Acciona (ANA)</option>
                         </select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Capital (€)</label>
-                            <input type="number" id="capital" value="1000" oninput="simular()" class="w-full bg-slate-800/50 border border-slate-700 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <input type="number" id="capital" value="1000" oninput="simular()" class="w-full bg-slate-800/50 border border-slate-700 p-3 rounded-xl outline-none">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Entrada (€)</label>
-                            <input type="number" id="entry-price" value="117.50" oninput="simular()" class="w-full bg-slate-800/50 border border-slate-700 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <input type="number" id="entry-price" value="117.50" oninput="simular()" class="w-full bg-slate-800/50 border border-slate-700 p-3 rounded-xl outline-none">
                         </div>
                     </div>
 
                     <div class="space-y-8 pt-4">
                         <div class="space-y-4">
                             <div class="flex justify-between items-center">
-                                <label class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Take Profit (Máx 2000%)</label>
-                                <div class="flex items-center space-x-2">
-                                    <input type="number" id="profit-input" value="10" oninput="syncSlider('profit')" class="w-16 bg-slate-800 border border-slate-700 text-xs text-center p-1 rounded-md text-emerald-400 font-mono">
-                                    <span class="text-emerald-400 font-mono text-sm">%</span>
-                                </div>
+                                <label class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Take Profit</label>
+                                <input type="number" id="profit-input" value="10" oninput="syncSlider('profit')" class="w-20 bg-slate-800 border border-slate-700 text-xs text-center p-1 rounded-md text-emerald-400 font-mono">
                             </div>
-                            <input type="range" id="profit-slider" min="0" max="2000" step="5" value="10" oninput="syncInput('profit')" class="w-full appearance-none">
+                            <input type="range" id="profit-slider" min="0" max="2000" step="5" value="10" oninput="syncInput('profit')" class="w-full">
                         </div>
 
                         <div class="space-y-4">
                             <div class="flex justify-between items-center">
                                 <label class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Stop Loss</label>
-                                <div class="flex items-center space-x-2">
-                                    <input type="number" id="loss-input" value="5" oninput="syncSlider('loss')" class="w-16 bg-slate-800 border border-slate-700 text-xs text-center p-1 rounded-md text-red-400 font-mono">
-                                    <span class="text-red-400 font-mono text-sm">%</span>
-                                </div>
+                                <input type="number" id="loss-input" value="5" oninput="syncSlider('loss')" class="w-20 bg-slate-800 border border-slate-700 text-xs text-center p-1 rounded-md text-red-400 font-mono">
                             </div>
-                            <input type="range" id="loss-slider" min="0" max="100" step="1" value="5" oninput="syncInput('loss')" class="w-full appearance-none">
+                            <input type="range" id="loss-slider" min="0" max="100" step="1" value="5" oninput="syncInput('loss')" class="w-full">
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
 
             <div class="md:col-span-2 space-y-4">
                 <div class="glass-card p-6 border-l-4 border-l-emerald-500 bg-emerald-500/5">
-                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 text-center italic">Potencial Éxito</p>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1 text-center">Ganancia Estimada</p>
                     <h3 class="text-3xl font-bold text-emerald-400 text-center" id="gain-euro">+100.00€</h3>
-                    <p class="text-[10px] text-slate-400 mt-2 font-mono text-center" id="target-price">Precio Objetivo: 129.25€</p>
+                    <p class="text-[10px] text-slate-400 mt-2 font-mono text-center" id="target-price">Venta: 129.25€</p>
                 </div>
-
                 <div class="glass-card p-6 border-l-4 border-l-red-500 bg-red-500/5">
-                    <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mb-1 text-center italic">Riesgo Controlado</p>
+                    <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mb-1 text-center">Riesgo Máximo</p>
                     <h3 class="text-3xl font-bold text-red-400 text-center" id="loss-euro">-50.00€</h3>
-                    <p class="text-[10px] text-slate-400 mt-2 font-mono text-center" id="stop-price">Precio Salida: 111.63€</p>
+                    <p class="text-[10px] text-slate-400 mt-2 font-mono text-center" id="stop-price">Salida: 111.63€</p>
                 </div>
-
-                <div class="glass-card p-4 flex justify-between items-center border-indigo-500/20">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase italic">Ratio R/B</span>
+                <div class="glass-card p-4 flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Ratio R/B</span>
                     <span class="text-lg font-bold text-indigo-400" id="rr-ratio">1 : 2.0</span>
                 </div>
             </div>
@@ -117,15 +103,25 @@
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        new TradingView.widget({
-            "autosize": true, "symbol": "BCBA:IBEX", "interval": "D", "timezone": "Europe/Madrid",
-            "theme": "dark", "style": "3", "locale": "es", "container_id": "tradingview_ibex",
-            "hide_top_toolbar": true
-        });
+        // Función para inicializar el gráfico de forma segura
+        function loadChart() {
+            if (typeof TradingView !== 'undefined') {
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": "BCBA:IBEX",
+                    "interval": "D",
+                    "timezone": "Europe/Madrid",
+                    "theme": "dark",
+                    "style": "3",
+                    "locale": "es",
+                    "container_id": "tradingview_ibex",
+                    "hide_top_toolbar": true
+                });
+            }
+        }
 
         function syncInput(type) {
-            const val = document.getElementById(`${type}-slider`).value;
-            document.getElementById(`${type}-input`).value = val;
+            document.getElementById(`${type}-input`).value = document.getElementById(`${type}-slider`).value;
             simular();
         }
 
@@ -151,4 +147,20 @@
             const loss = capital * (lPct / 100);
             const tPrice = entry * (1 + (pPct / 100));
             const sPrice = entry * (1 - (lPct / 100));
-            const ratio = lPct === 0
+            const ratio = lPct === 0 ? '∞' : (pPct / lPct).toFixed(1);
+
+            document.getElementById('gain-euro').innerText = `+${gain.toFixed(2)}€`;
+            document.getElementById('loss-euro').innerText = `-${loss.toFixed(2)}€`;
+            document.getElementById('target-price').innerText = `Venta: ${tPrice.toFixed(2)}€`;
+            document.getElementById('stop-price').innerText = `Salida: ${sPrice.toFixed(2)}€`;
+            document.getElementById('rr-ratio').innerText = `1 : ${ratio}`;
+        }
+
+        window.onload = () => {
+            loadChart();
+            simular();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
