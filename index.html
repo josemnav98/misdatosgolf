@@ -1,61 +1,71 @@
 <script>
     const API_KEY = 'e72e887fcbmsh533532df62ebd23p15b710jsnecfeebbc7925';
-    // PRUEBA CON ESTE FORMATO DE URL SI EL ANTERIOR FALLA
-    const DRIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/1gndtK_orjzYzqxWPlcIId_xrmyomAMka/gviz/tq?tqx=out:csv';
+    const DRIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/1gndtK_orjzYzqxWPlcIId_xrmyomAMka/export?format=csv';
 
+    // Función para manejar el Ranking desde Drive (Fija)
     async function fetchOWGR() {
-        const tbody = document.getElementById('owgr-table-body');
-        const emptyState = document.getElementById('empty-state');
         try {
             const response = await fetch(DRIVE_CSV_URL);
-            if (!response.ok) throw new Error('Error en Drive');
             const text = await response.text();
             const rows = text.split('\n').map(row => row.split(','));
             let html = '';
             for (let i = 1; i <= 10; i++) {
                 const row = rows[i];
                 if (row && row.length >= 5) {
-                    html += `
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-slate-400">${row[0].replace(/"/g, '')}</td>
-                            <td class="py-4 font-semibold text-slate-900">${row[4].replace(/"/g, '')}</td>
-                            <td class="px-6 py-4 text-right font-mono text-indigo-600 text-xs">${row[5].replace(/"/g, '')}</td>
-                        </tr>`;
+                    html += `<tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 font-bold text-slate-400">${row[0].replace(/"/g, '')}</td>
+                        <td class="py-4 font-semibold text-slate-900">${row[4].replace(/"/g, '')}</td>
+                        <td class="px-6 py-4 text-right font-mono text-indigo-600 text-xs">${row[5].replace(/"/g, '')}</td>
+                    </tr>`;
                 }
             }
-            tbody.innerHTML = html;
-            emptyState.style.display = 'none';
-        } catch (error) {
-            emptyState.innerText = "Error: Verifica que el archivo de Drive sea público.";
-        }
+            document.getElementById('owgr-table-body').innerHTML = html;
+            document.getElementById('empty-state').style.display = 'none';
+        } catch (e) { console.error("Drive Error:", e); }
     }
 
+    // Función para los calendarios (Mejorada)
     async function fetchTour(orgId, containerId) {
         const list = document.getElementById(containerId);
-        // ACTUALIZADO A 2026
-        const currentYear = new Date().getFullYear(); 
+        const year = 2024; // Probamos con 2024 primero porque muchas APIs tardan en subir 2026
+
         try {
-            const res = await fetch(`https://live-golf-data.p.rapidapi.com/schedule?orgId=${orgId}&year=${currentYear}`, {
-                headers: { 
-                    'x-rapidapi-key': API_KEY, 
-                    'x-rapidapi-host': 'live-golf-data.p.rapidapi.com' 
+            const options = {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': API_KEY,
+                    'x-rapidapi-host': 'live-golf-data.p.rapidapi.com'
                 }
-            });
-            const data = await res.json();
-            if (!Array.isArray(data)) throw new Error();
+            };
+
+            // Intentamos la petición
+            const res = await fetch(`https://live-golf-data.p.rapidapi.com/schedule?orgId=${orgId}&year=${year}`, options);
             
+            if (res.status === 401 || res.status === 403) {
+                list.innerHTML = '<p class="py-10 text-[10px] text-red-400 text-center uppercase tracking-widest">Error de Llave API (401/403)</p>';
+                return;
+            }
+
+            const data = await res.json();
+            
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p class="py-10 text-[10px] text-slate-400 text-center uppercase tracking-widest">No hay eventos para ' + year + '</p>';
+                return;
+            }
+
             list.innerHTML = data.slice(0, 6).map(ev => `
                 <div class="tour-card bg-white border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
                     <div>
-                        <span class="text-[9px] font-bold text-indigo-500 uppercase tracking-tighter">${new Date(ev.startDate).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})}</span>
-                        <h4 class="text-sm font-bold text-slate-800 leading-tight mt-1">${ev.tournamentName}</h4>
-                        <p class="text-[10px] text-slate-400 mt-1">${ev.city || 'Sede TBD'}</p>
+                        <span class="text-[9px] font-bold text-indigo-500 uppercase tracking-tighter">${ev.startDate || 'TBD'}</span>
+                        <h4 class="text-sm font-bold text-slate-800 mt-1">${ev.tournamentName}</h4>
+                        <p class="text-[10px] text-slate-400 mt-1">${ev.city || ''}</p>
                     </div>
                     <i data-lucide="chevron-right" class="w-4 h-4 text-slate-200"></i>
                 </div>
             `).join('');
-        } catch (e) { 
-            list.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-10">Sin datos para ' + currentYear + ' o límite de API excedido.</p>'; 
+        } catch (e) {
+            console.error("API Error:", e);
+            list.innerHTML = '<p class="py-10 text-[10px] text-slate-400 text-center">Error de conexión con la API</p>';
         }
         lucide.createIcons();
     }
